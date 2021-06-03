@@ -2,6 +2,7 @@ package uz.pdp.task1.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -9,11 +10,14 @@ import uz.pdp.task1.entity.Detail;
 import uz.pdp.task1.entity.Orders;
 import uz.pdp.task1.entity.Product;
 import uz.pdp.task1.payload.DetailsDto;
+import uz.pdp.task1.payload.ResDetail;
 import uz.pdp.task1.payload.response.Result;
 import uz.pdp.task1.repository.DetailRepository;
 import uz.pdp.task1.repository.OrderRepository;
 import uz.pdp.task1.repository.ProductRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -41,15 +45,32 @@ public class DetailsService {
 
     }
 
-    public Page<Detail> getAllDetails(Integer page) {
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<Detail> detailRepositoryAll = detailRepository.findAll(pageable);
-        return detailRepositoryAll;
+    public Page<ResDetail> getAllDetails(Integer page) {
+        List<Detail> all = detailRepository.findAll();
+        List<ResDetail> detailList = new ArrayList<>();
+        for (Detail detail : all) {
+            ResDetail resDetail = new ResDetail(
+                    detail.getOrder().getId(),
+                    detail.getProduct().getName(),
+                    detail.getQuantity()
+            );
+            detailList.add(resDetail);
+        }
+        return new PageImpl<>(detailList, PageRequest.of(page, 15), detailList.size());
     }
 
-    public Detail getOneById(Integer id) {
+    public ResDetail getOneById(Integer id) {
         Optional<Detail> optionalDetail = detailRepository.findById(id);
-        return optionalDetail.orElseGet(Detail::new);
+        if (!optionalDetail.isPresent())
+            return null;
+        Detail detail = optionalDetail.get();
+        ResDetail resDetail = new ResDetail(
+                detail.getOrder().getId(),
+                detail.getProduct().getName(),
+                detail.getQuantity()
+        );
+        return resDetail;
+
     }
 
     public Result delete(Integer id) {

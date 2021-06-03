@@ -7,5 +7,6 @@ import uz.pdp.task1.entity.Category;
 public interface CustomCategory {
 
     Integer getId();
+
     String getName();
 }

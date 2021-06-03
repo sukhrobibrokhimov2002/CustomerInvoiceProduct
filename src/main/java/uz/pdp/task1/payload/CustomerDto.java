@@ -15,7 +15,7 @@ public class CustomerDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-   @NotNull(message = "Customer name must not be null")
+    @NotNull(message = "Customer name must not be null")
     private String name;
     @NotNull(message = "Customer country must not be null")
     private String country;

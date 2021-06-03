@@ -2,18 +2,21 @@ package uz.pdp.task1.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uz.pdp.task1.entity.Invoice;
 import uz.pdp.task1.entity.Orders;
 import uz.pdp.task1.payload.InvoiceDto;
+import uz.pdp.task1.payload.ResInvoice;
 import uz.pdp.task1.payload.response.ExpiredInvoiceDto;
 import uz.pdp.task1.payload.response.Result;
 import uz.pdp.task1.payload.response.WrongInvoiceDto;
 import uz.pdp.task1.repository.InvoiceRepository;
 import uz.pdp.task1.repository.OrderRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,23 +40,48 @@ public class InvoiceService {
         return new Result("Invoice Successfully saved", true);
     }
 
-    public Page<Invoice> getAll(Integer page) {
+    public Page<ResInvoice> getAll(Integer page) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<Invoice> all = invoiceRepository.findAll(pageable);
-        return all;
+        List<ResInvoice> resInvoiceList = new ArrayList<>();
+        List<Invoice> all = invoiceRepository.findAll();
+        for (Invoice invoice : all) {
+            ResInvoice resInvoice = new ResInvoice(
+                    invoice.getOrder().getId(),
+                    invoice.getAmount(),
+                    invoice.getIssued(),
+                    invoice.getDue()
+            );
+            resInvoiceList.add(resInvoice);
+        }
+        return new PageImpl<>(resInvoiceList, pageable, resInvoiceList.size());
     }
 
-    public Invoice getByOrderId(Integer orderId) {
+    public ResInvoice getByOrderId(Integer orderId) {
         Optional<Orders> optionalOrders = orderRepository.findById(orderId);
-        if (!optionalOrders.isPresent()) return new Invoice();
-        Invoice byOrder_id = invoiceRepository.findByOrder_Id(orderId);
-        return byOrder_id;
+        if (!optionalOrders.isPresent()) return null;
+        Invoice byOrderId = invoiceRepository.findByOrder_Id(orderId);
+        ResInvoice resInvoice = new ResInvoice(
+                byOrderId.getOrder().getId(),
+                byOrderId.getAmount(),
+                byOrderId.getIssued(),
+                byOrderId.getDue()
+        );
+        return resInvoice;
     }
 
-    public Invoice byId(Integer id) {
+    public ResInvoice byId(Integer id) {
         Optional<Invoice> optionalInvoice = invoiceRepository.findById(id);
-        return optionalInvoice.orElse(null);
+        if (!optionalInvoice.isPresent())
+            return null;
+        Invoice invoice = optionalInvoice.get();
+        ResInvoice resInvoice = new ResInvoice(
+                invoice.getOrder().getId(),
+                invoice.getAmount(),
+                invoice.getIssued(),
+                invoice.getDue()
+        );
 
+        return resInvoice;
 
     }
 

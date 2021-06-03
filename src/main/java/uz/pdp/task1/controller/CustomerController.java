@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.task1.entity.Customer;
 import uz.pdp.task1.payload.CustomerDto;
+import uz.pdp.task1.payload.ResCustomerDto;
 import uz.pdp.task1.payload.response.OrdersByCountry;
 import uz.pdp.task1.payload.response.Result;
 import uz.pdp.task1.service.CustomerService;
@@ -50,7 +51,7 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOneById(@PathVariable Integer id) {
-        Customer oneById = customerService.getOneById(id);
+        ResCustomerDto oneById = customerService.getOneById(id);
         if (oneById == null) return ResponseEntity.status(HttpStatus.CONFLICT).body(oneById);
         return ResponseEntity.status(HttpStatus.OK).body(oneById);
     }
@@ -78,10 +79,11 @@ public class CustomerController {
      * @return List<Customer>
      */
     @GetMapping("/customers_without_orders")
-    public ResponseEntity<?> getCusWithoutOrder() {
-        List<Customer> customerWhoNotMakeOrder = customerService.getCustomerWhoNotMakeOrder();
+    public ResponseEntity<?> getCusWithoutOrder(@RequestParam int page) {
+        Page<?> customerWhoNotMakeOrder = customerService.getCustomerWhoNotMakeOrder(page);
 
-        if (customerWhoNotMakeOrder.isEmpty()) return ResponseEntity.status(HttpStatus.CONFLICT).body(customerWhoNotMakeOrder);
+        if (customerWhoNotMakeOrder.isEmpty())
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(customerWhoNotMakeOrder);
         return ResponseEntity.status(HttpStatus.OK).body(customerWhoNotMakeOrder);
     }
 
@@ -91,8 +93,8 @@ public class CustomerController {
      * @return List<Order>
      */
     @GetMapping("/customers_last_orders")
-    public ResponseEntity<?> getCustomerWithLatestOrder() {
-        List<?> customerWithLatestOrder = customerService.getCustomerWithLatestOrder();
+    public ResponseEntity<?> getCustomerWithLatestOrder(@RequestParam int page) {
+        Page<?> customerWithLatestOrder = customerService.getCustomerWithLatestOrder(page);
         if (customerWithLatestOrder.isEmpty())
             return ResponseEntity.status(HttpStatus.CONFLICT).body(customerWithLatestOrder);
         return ResponseEntity.status(HttpStatus.OK).body(customerWithLatestOrder);
@@ -100,6 +102,7 @@ public class CustomerController {
 
     /**
      * Getting number of orders by country in 2016
+     *
      * @return List<OrdersByCountry>
      */
     @GetMapping("/number_of_products_in_year")

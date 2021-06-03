@@ -2,12 +2,14 @@ package uz.pdp.task1.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uz.pdp.task1.entity.Invoice;
 import uz.pdp.task1.entity.Payment;
 import uz.pdp.task1.payload.PaymentDto;
+import uz.pdp.task1.payload.ResPayment;
 import uz.pdp.task1.payload.response.PaymentOverpaidDto;
 import uz.pdp.task1.payload.response.PaymentOverpaidResponse;
 import uz.pdp.task1.payload.response.Result;
@@ -42,20 +44,33 @@ public class PaymentService {
     }
 
 
-    public Page<Payment> getAllInPage(Integer page) {
+    public Page<ResPayment> getAllInPage(Integer page) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<Payment> all = paymentRepository.findAll(pageable);
-        return all;
-    }
-
-    public List<Payment> getAll() {
         List<Payment> all = paymentRepository.findAll();
-        return all;
+        List<ResPayment> resPaymentList = new ArrayList<>();
+        for (Payment payment : all) {
+            ResPayment resPayment = new ResPayment(
+                    payment.getTimestamp(),
+                    payment.getAmount(),
+                    payment.getInvoice().getId()
+            );
+            resPaymentList.add(resPayment);
+        }
+        return new PageImpl<>(resPaymentList, pageable, resPaymentList.size());
     }
 
-    public Payment getOneById(Integer id) {
+
+    public ResPayment getOneById(Integer id) {
         Optional<Payment> optionalPayment = paymentRepository.findById(id);
-        return optionalPayment.orElseGet(Payment::new);
+        if (!optionalPayment.isPresent())
+            return null;
+        Payment payment = optionalPayment.get();
+        ResPayment resPayment = new ResPayment(
+                payment.getTimestamp(),
+                payment.getAmount(),
+                payment.getInvoice().getId()
+        );
+        return resPayment;
     }
 
     public Result delete(Integer id) {

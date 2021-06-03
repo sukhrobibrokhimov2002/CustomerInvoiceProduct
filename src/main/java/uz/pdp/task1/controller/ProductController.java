@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.task1.entity.Product;
 import uz.pdp.task1.payload.ProductDto;
+import uz.pdp.task1.payload.ResProduct;
 import uz.pdp.task1.payload.response.HighDemandProductDto;
 import uz.pdp.task1.payload.response.ProductInBulkResponse;
 import uz.pdp.task1.payload.response.Result;
@@ -38,24 +39,19 @@ public class ProductController {
      */
     @GetMapping
     public ResponseEntity<?> getAllInPage(@RequestParam Integer page) {
-        Page<Product> all = productService.getAllInPage(page);
+        Page<ResProduct> all = productService.getAllInPage(page);
         if (all.isEmpty()) return ResponseEntity.status(HttpStatus.CONFLICT).body(all);
 
         return ResponseEntity.status(HttpStatus.OK).body(all);
     }
 
 
-    @GetMapping("/list")
-    public ResponseEntity<?> getAll() {
-        List<Product> all = productService.getAll();
-        if (all.isEmpty()) return ResponseEntity.status(HttpStatus.CONFLICT).body(all);
-        return ResponseEntity.status(HttpStatus.OK).body(all);
-    }
+
 
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOneById(@PathVariable Integer id) {
-        Product oneById = productService.getOneById(id);
+        ResProduct  oneById = productService.getOneById(id);
         if (oneById == null) return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
 
         return ResponseEntity.status(HttpStatus.OK).body(oneById);
@@ -63,14 +59,13 @@ public class ProductController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id)
-    {
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
         Result delete = productService.delete(id);
         if (!delete.isStatus()) return ResponseEntity.status(HttpStatus.CONFLICT).body(delete);
         return ResponseEntity.status(HttpStatus.OK).body(delete);
     }
 
-@PutMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> edit(@PathVariable Integer id, @RequestBody ProductDto productDto) {
         Result edit = productService.edit(productDto, id);
         if (!edit.isStatus()) return ResponseEntity.status(HttpStatus.CONFLICT).body(edit);

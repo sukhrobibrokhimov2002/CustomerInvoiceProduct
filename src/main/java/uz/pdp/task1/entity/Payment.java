@@ -1,14 +1,13 @@
 package uz.pdp.task1.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -16,7 +15,7 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-   @Column(nullable = false)
+    @Column(nullable = false)
     private Timestamp timestamp;
     @Column(nullable = false)
     private Double amount;

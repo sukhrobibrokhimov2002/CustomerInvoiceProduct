@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.task1.entity.Invoice;
 import uz.pdp.task1.payload.InvoiceDto;
+import uz.pdp.task1.payload.ResInvoice;
 import uz.pdp.task1.payload.response.ExpiredInvoiceDto;
 import uz.pdp.task1.payload.response.Result;
 import uz.pdp.task1.payload.response.WrongInvoiceDto;
@@ -43,7 +44,7 @@ public class InvoiceController {
      */
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam Integer page) {
-        Page<Invoice> all = invoiceService.getAll(page);
+        Page<ResInvoice> all = invoiceService.getAll(page);
         if (all.isEmpty()) return ResponseEntity.status(HttpStatus.CONFLICT).body(all);
         return ResponseEntity.status(HttpStatus.OK).body(all);
     }
@@ -51,7 +52,7 @@ public class InvoiceController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOneById(@PathVariable Integer id) {
-        Invoice invoice = invoiceService.byId(id);
+        ResInvoice invoice = invoiceService.byId(id);
         if (invoice == null) return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         return ResponseEntity.status(HttpStatus.OK).body(invoice);
     }
@@ -64,7 +65,7 @@ public class InvoiceController {
      */
     @GetMapping("/getByOrderId/{orderId}")
     public ResponseEntity<?> getByOrderId(@PathVariable Integer orderId) {
-        Invoice byOrderId = invoiceService.getByOrderId(orderId);
+        ResInvoice byOrderId = invoiceService.getByOrderId(orderId);
         if (byOrderId == null) return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         return ResponseEntity.status(HttpStatus.OK).body(byOrderId);
     }

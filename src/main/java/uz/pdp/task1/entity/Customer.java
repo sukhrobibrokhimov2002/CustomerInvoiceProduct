@@ -1,13 +1,12 @@
 package uz.pdp.task1.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -20,6 +19,6 @@ public class Customer {
     @Column(nullable = false)
     private String country;
     private String address;
-    @Column(unique = true,nullable = false)
+    @Column(unique = true, nullable = false)
     private String phone;
 }

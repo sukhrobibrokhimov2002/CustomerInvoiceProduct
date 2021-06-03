@@ -51,9 +51,8 @@ public class AttachmentController {
 
     @GetMapping("/download/{id}")
     public void download(@PathVariable Integer id, HttpServletResponse response) throws IOException {
-        attachmentService.download(id,response);
+        attachmentService.download(id, response);
     }
-
 
 
 }

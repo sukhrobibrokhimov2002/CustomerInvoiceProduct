@@ -4,12 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 
-public interface HighDemandProductDto {
-    Integer getNumberOfOrders();
+
+public interface CustomerResponse {
 
     String getName();
 
-    Integer getId();
+    String getPhone();
+
+    String getCountry();
+
+    Date getDate();
 
 }

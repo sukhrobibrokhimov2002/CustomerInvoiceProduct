@@ -1,13 +1,12 @@
 package uz.pdp.task1.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -17,7 +16,7 @@ public class Invoice {
     private Integer id;
     @OneToOne
     private Orders order;
- @Column(nullable = false)
+    @Column(nullable = false)
     private double amount;
     @Column(nullable = false)
     private Date issued;

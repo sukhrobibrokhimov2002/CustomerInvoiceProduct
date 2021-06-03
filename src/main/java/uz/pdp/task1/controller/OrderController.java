@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.task1.entity.Orders;
 import uz.pdp.task1.payload.OrderDto;
+import uz.pdp.task1.payload.ResOrders;
 import uz.pdp.task1.payload.response.OrderWithoutInvoiceDto;
 import uz.pdp.task1.payload.response.Result;
 import uz.pdp.task1.payload.response.Result2;
@@ -43,7 +44,7 @@ public class OrderController {
      */
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam Integer page) {
-        Page<Orders> all = orderService.getAll(page);
+        Page<ResOrders> all = orderService.getAll(page);
 //        if (all.isEmpty()) return null;
         return ResponseEntity.status(HttpStatus.OK).body(all);
     }
@@ -51,7 +52,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOneById(@PathVariable Integer id) {
-        Orders oneById = orderService.getOneById(id);
+        ResOrders oneById = orderService.getOneById(id);
         if (oneById == null) return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         return ResponseEntity.status(HttpStatus.OK).body(oneById);
 
@@ -79,15 +80,17 @@ public class OrderController {
      * @returnList<Orders>
      */
     @GetMapping("/orders_without_details")
-    public ResponseEntity<?> getOrdersWithoutDetails() {
-        List<Orders> ordersWithoutDetails = orderService.getOrdersWithoutDetails();
-        if (ordersWithoutDetails.isEmpty()) return ResponseEntity.status(HttpStatus.CONFLICT).body(ordersWithoutDetails);
+    public ResponseEntity<?> getOrdersWithoutDetails(@RequestParam int page) {
+        Page<ResOrders> ordersWithoutDetails = orderService.getOrdersWithoutDetails(page);
+        if (ordersWithoutDetails.isEmpty())
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ordersWithoutDetails);
         return ResponseEntity.status(HttpStatus.OK).body(ordersWithoutDetails);
 
     }
 
     /**
      * Getting orders without invoice
+     *
      * @return List<OrderWithoutInvoice>
      */
     @GetMapping("/orders_without_invoices")

@@ -2,16 +2,19 @@ package uz.pdp.task1.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uz.pdp.task1.entity.*;
 import uz.pdp.task1.payload.OrderDto;
+import uz.pdp.task1.payload.ResOrders;
 import uz.pdp.task1.payload.response.OrderWithoutInvoiceDto;
 import uz.pdp.task1.payload.response.Result;
 import uz.pdp.task1.payload.response.Result2;
 import uz.pdp.task1.repository.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -42,9 +45,9 @@ public class OrderService {
             orders.setCustomer(optionalCustomer.get());
 
             //if Client doesn't give a date, it will get system(current) date
-            if(orderDto.getDate()==null){
+            if (orderDto.getDate() == null) {
                 orders.setDate(new Date());
-            }else {
+            } else {
                 orders.setDate(orderDto.getDate());
             }
 
@@ -59,9 +62,9 @@ public class OrderService {
             //saving info into order table
             Orders orders = new Orders();
             //if Client doesn't give a date, it will get system(current) date
-            if(orderDto.getDate()==null){
+            if (orderDto.getDate() == null) {
                 orders.setDate(new Date());
-            }else {
+            } else {
                 orders.setDate(orderDto.getDate());
             }
             orders.setCustomer(optionalCustomer.get());
@@ -82,9 +85,9 @@ public class OrderService {
             if (orderDto.getAmount() == null || orderDto.getDueDate() == null || orderDto.getIssuedDate() == null)
                 return new Result2("Sth went wrong", false, null);
             //if Client doesn't give a date, it will get system(current) date
-            if(orderDto.getDate()==null){
+            if (orderDto.getDate() == null) {
                 orders.setDate(new Date());
-            }else {
+            } else {
                 orders.setDate(orderDto.getDate());
             }
             orders.setCustomer(optionalCustomer.get());
@@ -102,9 +105,9 @@ public class OrderService {
             Orders orders = new Orders();
             orders.setCustomer(optionalCustomer.get());
             //if Client doesn't give a date, it will get system(current) date
-            if(orderDto.getDate()==null){
+            if (orderDto.getDate() == null) {
                 orders.setDate(new Date());
-            }else {
+            } else {
                 orders.setDate(orderDto.getDate());
             }
             Orders savedOrder = orderRepository.save(orders);
@@ -128,16 +131,31 @@ public class OrderService {
 
     }
 
-    public Page<Orders> getAll(Integer page) {
+    public Page<ResOrders> getAll(Integer page) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<Orders> orderRepositoryAll = orderRepository.findAll(pageable);
-        return orderRepositoryAll;
+        List<ResOrders> resOrderList = new ArrayList<>();
+        List<Orders> ordersList = orderRepository.findAll();
+        for (Orders orders : ordersList) {
+            ResOrders resOrders = new ResOrders(
+                    orders.getDate(),
+                    orders.getCustomer().getName()
+            );
+            resOrderList.add(resOrders);
+        }
+        return new PageImpl<>(resOrderList, pageable, resOrderList.size());
     }
 
 
-    public Orders getOneById(Integer id) {
+    public ResOrders getOneById(Integer id) {
         Optional<Orders> orderOptional = orderRepository.findById(id);
-        return orderOptional.orElseGet(Orders::new);
+        if (!orderOptional.isPresent())
+            return null;
+        Orders orders = orderOptional.get();
+        ResOrders resOrders = new ResOrders(
+                orders.getDate(),
+                orders.getCustomer().getName()
+        );
+        return resOrders;
     }
 
     public Result deleteOrder(Integer id) {
@@ -256,13 +274,22 @@ public class OrderService {
      *
      * @return List<Orders>
      */
-    public List<Orders> getOrdersWithoutDetails() {
+    public Page<ResOrders> getOrdersWithoutDetails(int page) {
+        List<ResOrders> resOrdersList = new ArrayList<>();
         List<Orders> ordersWithoutDetails = orderRepository.findOrdersWithoutDetails();
-        return ordersWithoutDetails;
+        for (Orders ordersWithoutDetail : ordersWithoutDetails) {
+            ResOrders resOrders = new ResOrders(
+                    ordersWithoutDetail.getDate(),
+                    ordersWithoutDetail.getCustomer().getName()
+            );
+            resOrdersList.add(resOrders);
+        }
+       return new PageImpl<>(resOrdersList, PageRequest.of(page, 15), resOrdersList.size());
     }
 
     /**
      * For getting orders without invoice and its total price
+     *
      * @return
      */
     public List<OrderWithoutInvoiceDto> getOrderWithoutInvoice() {

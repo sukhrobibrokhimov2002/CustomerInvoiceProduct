@@ -9,5 +9,6 @@ import java.util.Optional;
 
 public interface DetailRepository extends JpaRepository<Detail, Integer> {
     boolean existsByOrder_Id(Integer order_id);
+
     Detail findByOrder_Id(Integer order_id);
 }

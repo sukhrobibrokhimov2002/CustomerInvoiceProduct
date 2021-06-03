@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.task1.entity.Detail;
 import uz.pdp.task1.payload.DetailsDto;
+import uz.pdp.task1.payload.ResDetail;
 import uz.pdp.task1.payload.response.Result;
 import uz.pdp.task1.service.DetailsService;
 
@@ -34,7 +35,7 @@ public class DetailsController {
      */
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam Integer page) {
-        Page<Detail> allDetails = detailsService.getAllDetails(page);
+        Page<ResDetail> allDetails = detailsService.getAllDetails(page);
         if (allDetails.isEmpty()) return ResponseEntity.status(HttpStatus.CONFLICT).body(allDetails);
         return ResponseEntity.status(HttpStatus.OK).body(allDetails);
     }
@@ -42,7 +43,7 @@ public class DetailsController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOneById(@PathVariable Integer id) {
-        Detail oneById = detailsService.getOneById(id);
+        ResDetail oneById = detailsService.getOneById(id);
         if (oneById == null) return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         return ResponseEntity.status(HttpStatus.OK).body(oneById);
     }

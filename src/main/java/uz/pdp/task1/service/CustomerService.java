@@ -2,15 +2,19 @@ package uz.pdp.task1.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uz.pdp.task1.entity.Customer;
 import uz.pdp.task1.payload.CustomerDto;
+import uz.pdp.task1.payload.ResCustomerDto;
+import uz.pdp.task1.payload.response.CustomerResponse;
 import uz.pdp.task1.payload.response.OrdersByCountry;
 import uz.pdp.task1.payload.response.Result;
 import uz.pdp.task1.repository.CustomerRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,17 +36,30 @@ public class CustomerService {
     }
 
     //get all customers
-    public Page<?> getAll(Integer page) {
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<Customer> all = customerRepository.findAll(pageable);
-        return all;
+    public Page<ResCustomerDto> getAll(Integer page) {
+        List<ResCustomerDto> customerDtoList = new ArrayList<>();
+        List<Customer> customerList = customerRepository.findAll();
+        for (Customer customer : customerList) {
+            ResCustomerDto resCustomerDto = new ResCustomerDto(
+                    customer.getName(),
+                    customer.getCountry(),
+                    customer.getAddress(),
+                    customer.getPhone()
+            );
+            customerDtoList.add(resCustomerDto);
+        }
+        return new PageImpl<ResCustomerDto>(customerDtoList, PageRequest.of(page, 15), customerDtoList.size());
     }
 
     //getting one customer by id
-    public Customer getOneById(Integer id) {
+    public ResCustomerDto getOneById(Integer id) {
         Optional<Customer> customerRepositoryById = customerRepository.findById(id);
         if (!customerRepositoryById.isPresent()) return null;
-        return customerRepositoryById.get();
+        Customer customer = customerRepositoryById.get();
+        return new ResCustomerDto(customer.getName(),
+                customer.getCountry(),
+                customer.getAddress(),
+                customer.getPhone());
     }
 
     public Result delete(Integer id) {
@@ -76,16 +93,27 @@ public class CustomerService {
     }
 
     //Customers who didn't make any order in 2016
-    public List<Customer> getCustomerWhoNotMakeOrder() {
+    public Page<ResCustomerDto> getCustomerWhoNotMakeOrder(int page) {
+        List<ResCustomerDto> customerDtoList = new ArrayList<>();
         List<Customer> customerWhoNotMakeOrder = customerRepository.getCustomerWhoNotMakeOrder();
-        return customerWhoNotMakeOrder;
+        for (Customer customer : customerWhoNotMakeOrder) {
+            ResCustomerDto resCustomerDto = new ResCustomerDto(
+                    customer.getName(),
+                    customer.getCountry(),
+                    customer.getAddress(),
+                    customer.getPhone()
+            );
+            customerDtoList.add(resCustomerDto);
+        }
+        return new PageImpl<ResCustomerDto>(customerDtoList, PageRequest.of(page, 15), customerDtoList.size());
 
     }
 
     //customer with the latest order
-    public List<?> getCustomerWithLatestOrder() {
-        List<?> customersWithLatestOrder = customerRepository.getCustomersWithLatestOrder();
-        return customersWithLatestOrder;
+    public Page<?> getCustomerWithLatestOrder(int page) {
+        List<CustomerResponse> customersWithLatestOrder = customerRepository.getCustomersWithLatestOrder();
+
+        return new PageImpl<>(customersWithLatestOrder, PageRequest.of(page, 15), customersWithLatestOrder.size());
 
     }
 

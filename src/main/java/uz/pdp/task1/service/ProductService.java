@@ -2,6 +2,7 @@ package uz.pdp.task1.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import uz.pdp.task1.entity.Category;
 import uz.pdp.task1.entity.Product;
 import uz.pdp.task1.entity.attachment.Attachment;
 import uz.pdp.task1.payload.ProductDto;
+import uz.pdp.task1.payload.ResProduct;
 import uz.pdp.task1.payload.response.HighDemandProductDto;
 import uz.pdp.task1.payload.response.ProductInBulkResponse;
 import uz.pdp.task1.payload.response.Result;
@@ -16,6 +18,7 @@ import uz.pdp.task1.repository.AttachmentRepository;
 import uz.pdp.task1.repository.CategoryRepository;
 import uz.pdp.task1.repository.ProductRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,11 +36,14 @@ public class ProductService {
         //check category exists or not
         Optional<Category> optionalCategory = categoryRepository.findById(productDto.getCategoryId());
         if (!optionalCategory.isPresent()) return new Result("Category not found", false);
-        //check photo exists or not
-        Optional<Attachment> optionalAttachment = attachmentRepository.findById(productDto.getAttachmentId());
-        if (!optionalAttachment.isPresent()) return new Result("Attachment photo not found", false);
         Product product = new Product();
-        product.setAttachment(optionalAttachment.get());
+        //check photo exists or not
+        if(productDto.getAttachmentId()!=null) {
+            Optional<Attachment> optionalAttachment = attachmentRepository.findById(productDto.getAttachmentId());
+            product.setAttachment(optionalAttachment.get());
+        }
+
+
         product.setCategory(optionalCategory.get());
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
@@ -46,22 +52,38 @@ public class ProductService {
         return new Result("Product successfully added", true);
     }
 
-    public Page<Product> getAllInPage(Integer page) {
+    public Page<ResProduct> getAllInPage(Integer page) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<Product> all = productRepository.findAll(pageable);
-        return all;
-    }
-
-    public List<Product> getAll() {
         List<Product> all = productRepository.findAll();
-        return all;
+        List<ResProduct> resProductList = new ArrayList<>();
 
+        for (Product product : all) {
+            ResProduct resProduct = new ResProduct(
+                    product.getName(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    product.getCategory().getName()
+            );
+            resProductList.add(resProduct);
+        }
+        return new PageImpl<>(resProductList, pageable, resProductList.size());
     }
 
-    public Product getOneById(Integer id) {
+
+    public ResProduct getOneById(Integer id) {
         //checking product whether exist or not
         Optional<Product> optionalProduct = productRepository.findById(id);
-        return optionalProduct.orElseGet(Product::new);
+        if (!optionalProduct.isPresent())
+            return null;
+        Product product = optionalProduct.get();
+        ResProduct resProduct = new ResProduct(
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getCategory().getName()
+        );
+
+        return resProduct;
     }
 
     public Result delete(Integer id) {

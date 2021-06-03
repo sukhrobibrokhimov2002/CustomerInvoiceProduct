@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.task1.entity.Payment;
 import uz.pdp.task1.payload.PaymentDto;
+import uz.pdp.task1.payload.ResPayment;
 import uz.pdp.task1.payload.response.Result;
 import uz.pdp.task1.payload.response.Result3;
 import uz.pdp.task1.service.PaymentService;
@@ -41,24 +42,18 @@ public class PaymentController {
      */
     @GetMapping
     public ResponseEntity<?> getAllInPage(@RequestParam Integer page) {
-        Page<Payment> all = paymentService.getAllInPage(page);
+        Page<ResPayment> all = paymentService.getAllInPage(page);
         if (all.isEmpty()) return ResponseEntity.status(HttpStatus.CONFLICT).body(all);
         return ResponseEntity.status(HttpStatus.OK).body(all);
     }
 
 
-    @GetMapping("/list")
-    public ResponseEntity<?> getAll() {
-        List<Payment> all = paymentService.getAll();
-        if (all.isEmpty()) return ResponseEntity.status(HttpStatus.CONFLICT).body(all);
-        return ResponseEntity.status(HttpStatus.OK).body(all);
 
-    }
 
 
     @GetMapping("/details/{id}")
-    public ResponseEntity<Payment> getOneById(@PathVariable Integer id) {
-        Payment oneById = paymentService.getOneById(id);
+    public ResponseEntity<?> getOneById(@PathVariable Integer id) {
+        ResPayment oneById = paymentService.getOneById(id);
         if (oneById == null) return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         return ResponseEntity.status(HttpStatus.OK).body(oneById);
     }
@@ -81,13 +76,14 @@ public class PaymentController {
 
     /**
      * Payments that are overpaid and return sum that should be reimbursed
+     *
      * @return List<>
      */
-        @GetMapping("/overpaid_invoices")
+    @GetMapping("/overpaid_invoices")
     public ResponseEntity<?> getOverPaid() {
         List<?> overpaidInvoices = paymentService.getOverpaidInvoices();
         if (overpaidInvoices.isEmpty()) return ResponseEntity.status(HttpStatus.CONFLICT).body(overpaidInvoices);
-       return ResponseEntity.status(HttpStatus.OK).body(overpaidInvoices);
+        return ResponseEntity.status(HttpStatus.OK).body(overpaidInvoices);
     }
 
 }
